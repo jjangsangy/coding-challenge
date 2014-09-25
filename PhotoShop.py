@@ -38,9 +38,10 @@ class Developer(Thread):
 
             client, film = self.queue.dequeue()
             wait = self.wait_time(film)
-
-            print('Developer: [{name:6}]\t Client: {client:10} Time: {wait:3} sec'.format(
+            
+            print('Developer: [{name:6}]\t Client: {client:10} Images: {film:3}      Time: {wait:3} sec'.format(
                 name=self.dev,
+                film=film,
                 client=client,
                 wait=wait,
             ))
