@@ -7,12 +7,15 @@ import time
 from threading import Thread
 from collections import namedtuple
 
-Customer  = namedtuple('Customer', ['name', 'photos'])
+
+Customer = namedtuple('Customer', ['name', 'photos'])
+
 
 class Developer(Thread):
+
     """
     Developer Worker class.
-    
+
     Inherits from Threading module for performing
     synchronous lock based concurrency.
 
@@ -25,6 +28,7 @@ class Developer(Thread):
           Once it becomes necessary to manage both reads and writes from
           the queue, it will be necessary to swap to a managed ThreadSafeQueue.
     """
+
     def __init__(self, dev, queue):
         Thread.__init__(self)
         self.dev = dev
@@ -38,8 +42,8 @@ class Developer(Thread):
 
             client, film = self.queue.dequeue()
             wait = self.wait_time(film)
-            
-            print('Developer: [{name:6}]\t Client: {client:10} Images: {film:3}      Time: {wait:3} sec'.format(
+
+            print('Developer: [{name:6}]\t Client: {client:10} Images: {film:3} \t Time: {wait:3} sec'.format(
                 name=self.dev,
                 film=film,
                 client=client,
@@ -57,7 +61,9 @@ class Developer(Thread):
 
 
 class PhotoQueue(object):
+
     """An abstract queue data type"""
+
     def __init__(self):
         self._jobs = []
 
@@ -122,4 +128,5 @@ def main(filepath):
 
 
 if __name__ == '__main__':
+
     main(sys.argv[1])
