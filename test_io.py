@@ -1,3 +1,4 @@
+import os
 import unittest
 from PhotoShop import Customer, PhotoQueue, reader
 
@@ -5,6 +6,9 @@ from PhotoShop import Customer, PhotoQueue, reader
 class IOTest(unittest.TestCase):
 
     data = 'data/Photos.csv'
+
+    def test_data(self):
+        self.assertTrue(os.path.isfile(self.data))
 
     def test_customer(self):
         self.assertEqual(Customer.__base__, tuple)
