@@ -1,6 +1,5 @@
 import unittest
 from PhotoShop import Customer, PhotoQueue, reader
-from collections import namedtuple
 
 
 class IOTest(unittest.TestCase):
@@ -25,4 +24,3 @@ class IOTest(unittest.TestCase):
 
 if __name__ == '__main__':
     unittest.main()
-
