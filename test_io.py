@@ -20,6 +20,7 @@ class IOTest(unittest.TestCase):
     def test_reader(self):
         queue = reader(self.data)
         self.assertIsInstance(queue, PhotoQueue)
+        self.assertFalse(queue.is_empty())
 
 
 if __name__ == '__main__':
