@@ -43,16 +43,19 @@ class Developer(Thread):
           the queue, it will be necessary to swap to a managed ThreadSafeQueue.
     """
 
-    def __init__(self, name, queue):
+    def __init__(self, name, queue, interrupt):
         Thread.__init__(self)
         self.queue = queue
         self.name = name
+        self.interrupt = interrupt
 
     def run(self):
         """
         Overloading thread handler
         """
         while not self.queue.is_empty():
+            if self.interrupt.is_set():
+                break
             client, film = self.queue.dequeue()
             wait = self.wait_time(film)
 
@@ -165,9 +168,10 @@ def main(filepath):
     assert(os.path.isfile(filepath))
 
     taskqueue = reader(filepath)
+    interrupt = Event()
 
     for worker in ('Apple', 'Google'):
-        work = Developer(worker, taskqueue)
+        work = Developer(worker, taskqueue, interrupt)
         work.start()
         time.sleep(0.1)
 
@@ -176,8 +180,7 @@ def main(filepath):
             work.join(timeout=1)
     except (KeyboardInterrupt, SystemExit):
         print('\nCtrl-C Detected: Exiting Gracefully')
-        work.queue._jobs = None
-        print('Waiting for threads to finish')
+        interrupt.set()
 
     return
 
