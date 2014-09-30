@@ -92,10 +92,6 @@ class PhotoQueue(object):
         """Gets the size of the queue"""
         return len(self._jobs)
 
-    def __contains__(self, key):
-        """Allows membership testing using `in`"""
-        return key in self._jobs
-
     def is_empty(self):
         if not self._jobs:
             return True
@@ -120,7 +116,7 @@ def reader(filepath):
     Returns:
     <PhotoQueue> objects enqueued with customer information.
     """
-    q = PhotoQueue()
+    job_queue = PhotoQueue()
     with open(filepath, 'rt') as fp:
 
         reader = csv.reader(fp)
@@ -141,9 +137,20 @@ def reader(filepath):
                     ))
                 continue
 
-            q.enqueue(Customer(name, int(photos)))
+            customer = Customer(name, photos)
 
-    return q
+            # Merge double entries into a single job.
+            for entry in job_queue:
+                if entry.name == customer.name:
+                    index = job_queue._jobs.index(entry)
+                    job_queue._jobs.remove(entry)
+                    customer = entry._replace(photos=(entry.photos + customer.photos))
+                    job_queue._jobs.insert(index, customer)
+                    break
+            else:
+                job_queue.enqueue(customer)
+
+    return job_queue
 
 
 def main(filepath):
