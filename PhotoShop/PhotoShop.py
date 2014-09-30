@@ -18,7 +18,7 @@ import os
 import sys
 import time
 
-from threading import Thread
+from threading import Thread, Event
 from collections import namedtuple
 
 
@@ -43,22 +43,21 @@ class Developer(Thread):
           the queue, it will be necessary to swap to a managed ThreadSafeQueue.
     """
 
-    def __init__(self, dev, queue):
+    def __init__(self, name, queue):
         Thread.__init__(self)
-        self.dev = dev
         self.queue = queue
+        self.name = name
 
     def run(self):
         """
         Overloading thread handler
         """
         while not self.queue.is_empty():
-
             client, film = self.queue.dequeue()
             wait = self.wait_time(film)
 
             print('Developer: [{name:6}]\t Client: {client:10} Images: {film:3} \t Time: {wait:3} sec'.format(
-                name=self.dev,
+                name=self.name,
                 film=film,
                 client=client,
                 wait=wait,
@@ -116,7 +115,7 @@ def reader(filepath):
     Returns:
     <PhotoQueue> objects enqueued with customer information.
     """
-    job_queue = PhotoQueue()
+    q = PhotoQueue()
     with open(filepath, 'rt') as fp:
 
         reader = csv.reader(fp)
@@ -128,7 +127,10 @@ def reader(filepath):
                     row=','.join(list(row)))
                 )
                 continue
+
             name, photos = row
+
+            # Type Cast
             try:
                 photos = int(photos)
             except ValueError:
@@ -140,17 +142,18 @@ def reader(filepath):
             customer = Customer(name, photos)
 
             # Merge double entries into a single job.
-            for entry in job_queue:
+            for index, entry in enumerate(q._jobs):
                 if entry.name == customer.name:
-                    index = job_queue._jobs.index(entry)
-                    job_queue._jobs.remove(entry)
-                    customer = entry._replace(photos=(entry.photos + customer.photos))
-                    job_queue._jobs.insert(index, customer)
+                    q._jobs.remove(entry)
+                    customer = entry._replace(
+                        photos=(entry.photos + customer.photos)
+                    )
+                    q._jobs.insert(index, customer)
                     break
             else:
-                job_queue.enqueue(customer)
+                q.enqueue(customer)
 
-    return job_queue
+    return q
 
 
 def main(filepath):
@@ -166,9 +169,17 @@ def main(filepath):
     for worker in ('Apple', 'Google'):
         work = Developer(worker, taskqueue)
         work.start()
+        time.sleep(0.1)
+
+    try:
+        while work.is_alive():
+            work.join(timeout=1)
+    except (KeyboardInterrupt, SystemExit):
+        print('\nCtrl-C Detected: Exiting Gracefully')
+        work.queue._jobs = None
+        print('Waiting for threads to finish')
 
     return
 
-
 if __name__ == '__main__':
-    main(sys.argv[1])
+    sys.exit(main(sys.argv[1]))
