@@ -1,6 +1,20 @@
+#!/usr/bin/env python
+"""
+To run this program as an executible and submit a
+with a proper csv file as the first argument.
+
+    >>> ./PhotoShop.py path/to/file
+
+You can also supply your own python interpreter.
+
+    >>> python3 PhotoShop.py path/to/file
+
+"""
+
 from __future__ import print_function
 
 import csv
+import os
 import sys
 import time
 
@@ -78,6 +92,10 @@ class PhotoQueue(object):
         """Gets the size of the queue"""
         return len(self._jobs)
 
+    def __contains__(self, key):
+        """Allows membership testing using `in`"""
+        return key in self._jobs
+
     def is_empty(self):
         if not self._jobs:
             return True
@@ -107,7 +125,22 @@ def reader(filepath):
 
         reader = csv.reader(fp)
         for row in reader:
+
+            # Skip Incorrect Customer Submissions
+            if len(row) != 2:
+                print('Row {row} did not supply valid input'.format(
+                    row=','.join(list(row)))
+                )
+                continue
             name, photos = row
+            try:
+                photos = int(photos)
+            except ValueError:
+                print('Could not convert {photos} to an integer'.format(
+                    photos=photos
+                    ))
+                continue
+
             q.enqueue(Customer(name, int(photos)))
 
     return q
@@ -118,6 +151,9 @@ def main(filepath):
     The Customer namedtuple is an immutible primitive data
     type managed by the Task Queue.
     """
+    # Input Validation
+    assert(os.path.isfile(filepath))
+
     taskqueue = reader(filepath)
 
     for worker in ('Apple', 'Google'):
@@ -128,5 +164,4 @@ def main(filepath):
 
 
 if __name__ == '__main__':
-
     main(sys.argv[1])
