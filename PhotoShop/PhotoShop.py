@@ -165,7 +165,7 @@ def main(filepath):
     type managed by the Task Queue.
     """
     # Input Validation
-    assert(os.path.isfile(filepath))
+    assert os.path.isfile(filepath)
 
     taskqueue = reader(filepath)
     interrupt = Event()
