@@ -1,3 +1,5 @@
+#define QUEUE_NULL ((void *) 0)
+
 typedef struct _Queue Queue;
 typedef void *QueueValue;
 
