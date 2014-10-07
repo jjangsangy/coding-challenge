@@ -12,14 +12,14 @@ void pq_delete(int);
 typedef int Item;
 static int N, pq[MAX+1], qp[MAX+1];
 
-void exchange(int *a, int *b)
+void exchange(int a, int b)
 {
-    int temp = qp[*a];
-    qp[*a] = qp[*b];
-    qp[*b] = temp;
+    int temp = qp[a];
+    qp[a] = qp[b];
+    qp[b] = temp;
 
-    pq[qp[*a]] = *a;
-    pq[qp[*b]] = *b;
+    pq[qp[a]] = a;
+    pq[qp[b]] = b;
 }
 
 void fix_down(Item a[], int k, int N)
@@ -35,7 +35,7 @@ void fix_down(Item a[], int k, int N)
         if (a[k] < a[j])
             break;
 
-        exchange(&a[k], &a[j]);
+        exchange(a[k], a[j]);
         k = j;
     }
 }
@@ -45,7 +45,7 @@ void fix_up(Item a[], int k)
     int parent = k/2;
     while (k > 1 && (a[parent] < a[k]))
     {
-        exchange(&a[k], &a[parent]);
+        exchange(a[k], a[parent]);
         k = parent;
     }
 }
@@ -68,7 +68,7 @@ void pq_insert(int k)
 
 int pq_delmax()
 {
-    exchange(&pq[1], &pq[N]);
+    exchange(pq[1], pq[N]);
     fix_down(pq, 1, --N);
     return pq[N+1];
 }
@@ -86,7 +86,8 @@ int main(int argc, char *argv[])
     }
 
     printf("Removing\n");
-    for (; N>=0; popped = pq_delmax())
-        printf("pop %i is %i\n", i, popped);
+    while (N >= 0) {
+        printf("pop %i is %i\n", N, pq_delmax());
+    }
     return 0;
 }

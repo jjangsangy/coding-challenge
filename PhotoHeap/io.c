@@ -5,10 +5,10 @@
 #include <unistd.h>
 #include "dbg.h"
 
-#define MAXFIELD 20
+#define MAXFEED 256
 
 typedef struct {
-    char name[MAXFIELD];
+    char name[MAXFEED];
     int photos;
 } Customer;
 
@@ -27,11 +27,14 @@ int linefeed(FILE *fp)
 
 int main(int argc, char *argv[])
 {
+    // Input Validation
     if (argc != 2)
         exit("Argument Mismatch\n");
 
+    // Open File
     FILE *fp = fopen(argv[1], "r");
 
+    // Read File
     while ((feof(fp) != 1) {
         customer = linefeed(fp);
 
@@ -39,6 +42,7 @@ int main(int argc, char *argv[])
         printf("%d\n", customer->photos);
     }
 
+    // Close File
     fclose(fp);
     return 0;
 }
